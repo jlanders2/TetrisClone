@@ -2,19 +2,19 @@
 #define TETRIS_CLONE_TETROMINO_H_
 
 enum TetrominoType {
-  I_TYPE,
-  J_TYPE,
-  L_TYPE,
-  O_TYPE,
-  S_TYPE,
-  T_TYPE,
-  Z_TYPE,
-  EMPTY 
+  TT_I,
+  TT_J,
+  TT_L,
+  TT_O,
+  TT_S,
+  TT_T,
+  TT_Z,
+  TT_EMPTY 
 };
 
 struct TetrominoBlock {
-  unsigned char x;
-  unsigned char y;
+  unsigned int x;
+  unsigned int y;
   enum TetrominoType type;
 };
 

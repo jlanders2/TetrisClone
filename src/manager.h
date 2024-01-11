@@ -4,15 +4,15 @@
 #include <stdbool.h>
 
 #include "tetromino.h"
-
-void InitManager(void);
-void EmptyAllBlocks(void);
-bool CantSpawnBlock(void);
-void Update(void);
-void RequestRotate(void);
-void RequestMoveLeft(void);
-void RequestMoveRight(void);
-struct TetrominoBlock** GetUpdatedBlocks(int* lengthOfBlocksUpdated);
-void CleanupManager(void);
+// TODO - I'm not sure whether the internal functions should actually be here...
+void m_initialize(void);
+void m_update(void);
+void m_blocks_set_empty(void);
+bool m_tetromino_can_spawn(void); // Bad name + Doesn't follow naming
+void m_request_falling_tetromino_rotate(void);
+void m_request_falling_tetromino_move_left(void);
+void m_request_falling_tetromino_move_right(void);
+struct TetrominoBlock* *m_blocks_get_updated(int* lengthOfBlocksUpdated);
+void m_deactivate(void);
 
 #endif

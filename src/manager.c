@@ -1,8 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <stdlib.h> //srand,rand,
+#include <time.h> //time
 #define __USE_MISC
-#include <math.h>
+#include <math.h> //cos,sin
 
 #include "manager.h"
 
@@ -26,251 +25,115 @@ struct Tetromino {
     struct TetrominoBlock* blocks[BLOCKS_WITHIN_A_TETROMINO];
 };
 
-
 // To find block (x,y) index = (x % FIELD_WIDTH) + (y * FIELD_WIDTH)
 //    Height doesn't matter but height is just the factor of how tall the board is. 
 //    And in the end each row is just the next representation of width * units, height just determines row count.
 //    Doesn't factor into determining X,Y
 struct TetrominoBlock* _blocks[FIELD_HEIGHT * FIELD_WIDTH];
-struct TetrominoBlock* _updatedBlocks[FIELD_HEIGHT * FIELD_WIDTH] = { NULL };
-int _updatedBlockLength = 0;
-bool shouldSpawnTetromino;
+struct TetrominoBlock* _blocks_updated[FIELD_HEIGHT * FIELD_WIDTH] = { NULL };
+int _blocks_updated_length = 0;
+bool _should_spawn_tetromino;
 struct Tetromino fallingTetromino;
 const char kSpawnX = FIELD_WIDTH / 2 - 1;
 const struct Offset kShiftDownOffset = { .xOffset = 0, .yOffset = 1 };
 const struct Offset kShiftLeftOffset = { .xOffset = -1, .yOffset = 0 };
 const struct Offset kShiftRightOffset = { .xOffset = 1, .yOffset = 0 };
 
-bool moveLeft = false;
-bool moveRight = false;
-bool rotate = false;
-bool cannotSpawn = false;
+bool _should_tetromino_move_left = false;
+bool _should_tetromino_move_right = false;
+bool _should_tetromino_rotate = false;
+bool _tetromino_can_spawn = true;
 
-void CleanupManager(void) {
+void m_initialize(void) {
+    _m_blocks_alloc();
+    _should_spawn_tetromino = true;
+}
+
+void m_update(void) {
+    _m_blocks_updated_erase();
+    if (_should_spawn_tetromino) {
+        _should_tetromino_move_left = false;
+        _should_tetromino_move_right = false;
+        _m_tetromino_spawn();
+        _should_spawn_tetromino = false;
+    } else {
+        // TODO move left and right refactor naming 
+
+        if(_should_tetromino_rotate) {
+            _m_falling_tetromino_rotate();
+            _should_tetromino_rotate = false;
+        }
+        
+        if (_should_tetromino_move_right && _m_falling_tetromino_can_move_right()) {
+            _m_falling_tetromino_translate(kShiftRightOffset);
+            _should_tetromino_move_right = false;
+        }
+
+        if (_should_tetromino_move_left && _m_falling_tetromino_can_move_left()) {
+            _m_falling_tetromino_translate(kShiftLeftOffset);
+            _should_tetromino_move_left = false;
+        }
+
+        _m_falling_tetromino_fall();
+    }
+}
+
+void m_blocks_set_empty(void) {
+    for (int i = 0; i < FIELD_HEIGHT * FIELD_WIDTH; i++) {
+        _m_block_set_type(_blocks[i], TT_EMPTY);
+    }
+}
+
+bool m_tetromino_can_spawn(void) {
+    return _tetromino_can_spawn;
+}
+
+void m_request_falling_tetromino_rotate(void) {
+    _should_tetromino_rotate = true;
+}
+
+void m_request_falling_tetromino_move_left(void) {
+    _should_tetromino_move_left = true;
+    _should_tetromino_move_right = false;
+}
+
+void m_request_falling_tetromino_move_right(void) {
+    _should_tetromino_move_right = true;
+    _should_tetromino_move_left = false;
+}
+
+struct TetrominoBlock** m_blocks_get_updated(int* numberOfUpdatedBlocks) {
+    *numberOfUpdatedBlocks = _blocks_updated_length;
+
+    return &_blocks_updated[0];
+}
+
+void m_deactivate(void) {
     for(int i = 0; i < sizeof(_blocks) / sizeof(struct TetrominoBlock*); i++) {
         free(_blocks[i]);
     }
 }
 
-struct TetrominoBlock** GetUpdatedBlocks(int* numberOfUpdatedBlocks) {
-    *numberOfUpdatedBlocks = _updatedBlockLength;
+void _m_blocks_alloc(void) {
+    for (int i = 0; i < FIELD_HEIGHT * FIELD_WIDTH; i++) {
+        struct TetrominoBlock* block = calloc(1, sizeof(struct TetrominoBlock));
+        block->x = i % FIELD_WIDTH;
+        block->y = i / FIELD_WIDTH;
 
-    return &_updatedBlocks[0];
-}
-
-void RequestRotate(void) {
-    rotate = true;
-}
-
-void RequestMoveLeft(void) {
-    moveLeft = true;
-    moveRight = false;
-}
-
-void RequestMoveRight(void) {
-    moveRight = true;
-    moveLeft = false;
-}
-
-struct TetrominoBlock* GetBlockAtPoint(struct Point point) {
-    return _blocks[(point.x % FIELD_WIDTH) + (point.y * FIELD_WIDTH)];
-}
-
-void RegisterUpdatedBlock(struct TetrominoBlock* pTetrominoBlock) {
-    if (_updatedBlockLength < FIELD_HEIGHT * FIELD_WIDTH) {
-        _updatedBlocks[_updatedBlockLength] = pTetrominoBlock;
-        _updatedBlockLength++;
+        _blocks[i] = block;
     }
 }
 
-void UpdateBlockType(struct TetrominoBlock* pTetrominoBlock, enum TetrominoType type) {
-    pTetrominoBlock->type = type;
-    RegisterUpdatedBlock(pTetrominoBlock);
+void _m_blocks_updated_erase() {
+    _blocks_updated_length = 0;
 }
 
-void ShiftFallingTetrominoByOffset(struct Offset offset) {
-    for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
-        UpdateBlockType(fallingTetromino.blocks[i], EMPTY);
-        RegisterUpdatedBlock(fallingTetromino.blocks[i]);
-    }
-
-    for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
-        struct Point updatedPoint = { .x = fallingTetromino.blocks[i]->x + offset.xOffset, .y = fallingTetromino.blocks[i]->y + offset.yOffset};
-        fallingTetromino.blocks[i] = GetBlockAtPoint(updatedPoint);
-
-        UpdateBlockType(fallingTetromino.blocks[i], fallingTetromino.type);
-        RegisterUpdatedBlock(fallingTetromino.blocks[i]);
-    }
-}
-
-// I HATE THIS NAME... but it's verbose for now TODO - RENAME
-bool DoesPointIntersectNonFallingBlock(struct Point point) {
-    bool result = false;
-
-    struct TetrominoBlock* blockAtPoint = GetBlockAtPoint(point);
-
-    if (blockAtPoint->type != EMPTY) {
-        result = true;
-
-        for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
-            if (fallingTetromino.blocks[i] == blockAtPoint) {
-                result = false;
-                break;
-            }
-        }
-    }
-
-    return result;
-}
-
-bool CanBlockFall(struct TetrominoBlock block) {
-    struct Point newBlockPoint = { .x = block.x, .y = block.y + 1};
-    if (newBlockPoint.y >= FIELD_HEIGHT) {
-        return false;
-    } else if (DoesPointIntersectNonFallingBlock(newBlockPoint)) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-bool FallingTetrominoCanFall(void) {
-    bool result = true;
-    for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
-        if (!CanBlockFall(*(fallingTetromino.blocks[i]))) {
-            result = false;
-            break;
-        }
-    }
-
-    return result;
-}
-
-void UpdateFallingTetromino(void) {
-    if(FallingTetrominoCanFall()) {
-        ShiftFallingTetrominoByOffset(kShiftDownOffset);
-    } else {
-        shouldSpawnTetromino = true;
-    }
-}
-
-bool CanBlockMoveLeft(struct TetrominoBlock block) {
-    struct Point newBlockPoint = { .x = block.x - 1, .y = block.y };
-    if (newBlockPoint.x < 0) {
-        return false;
-    } else if (DoesPointIntersectNonFallingBlock(newBlockPoint)) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-bool FallingTetrominoCanMoveLeft(void) {
-    bool result = true;
-    for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
-        if (!CanBlockMoveLeft(*(fallingTetromino.blocks[i]))) {
-            result = false;
-            break;
-        }
-    }
-
-    return result;
-}
-
-bool CanBlockMoveRight(struct TetrominoBlock block) {
-    struct Point newBlockPoint = { .x = block.x + 1, .y = block.y };
-    if (newBlockPoint.x >= FIELD_WIDTH) {
-        return false;
-    }  else if (DoesPointIntersectNonFallingBlock(newBlockPoint)) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-bool FallingTetrominoCanMoveRight(void) {
-    bool result = true;
-    for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
-        if (!CanBlockMoveRight(*(fallingTetromino.blocks[i]))) {
-            result = false;
-            break;
-        }
-    }
-
-    return result;
-}
-
-struct Point GetRotatedPointForBlock(struct Point origin, struct TetrominoBlock block) {
-    // Only doing counter clockwise for now
-    struct Point newPoint;
-    newPoint.x = (block.x - origin.x) * cos(M_PI_2) - (block.y - origin.y) * sin(M_PI_2);
-    newPoint.y = (block.x - origin.x) * sin(M_PI_2) + (block.y - origin.y) * cos(M_PI_2);
-
-    return newPoint;
-}
-
-void RotateFallingTetromino(void) {
-    // Will be a bit buggy because i'm not checking for intersections
-    struct Point origin = { .x = fallingTetromino.blocks[0]->x, .y = fallingTetromino.blocks[0]->y };
-
-    for (int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
-        // Empty the old
-        UpdateBlockType(fallingTetromino.blocks[i], EMPTY);
-        RegisterUpdatedBlock(fallingTetromino.blocks[i]);
-
-        // Update the new
-        struct Point rotatedPointAdjustedForOrigin = GetRotatedPointForBlock(origin, *fallingTetromino.blocks[i]);
-        struct Point newRotatedPoint = { .x = rotatedPointAdjustedForOrigin.x + origin.x, .y = rotatedPointAdjustedForOrigin.y + origin.y };
-        fallingTetromino.blocks[i] = GetBlockAtPoint(newRotatedPoint);
-
-        UpdateBlockType(fallingTetromino.blocks[i], fallingTetromino.type);
-        RegisterUpdatedBlock(fallingTetromino.blocks[i]);
-    }
-}
-
-void TryRotateFallingTetromino(void) {
-    // TODO IMPLEMENT
-    if (fallingTetromino.type == O_TYPE) {
-        return;
-    } else {
-        RotateFallingTetromino();
-    }
-}
-
-void SpawnBlocksAtPoints(enum TetrominoType type, struct Offset* offsets) {
-    fallingTetromino.type = type;
-    int index = 0;
-    while(index < BLOCKS_WITHIN_A_TETROMINO) {
-        struct Point spawnPoint;
-        spawnPoint.x = kSpawnX + offsets->xOffset;
-        spawnPoint.y = offsets->yOffset;
-
-        struct TetrominoBlock* spawnBlock = GetBlockAtPoint(spawnPoint);
-        if (spawnBlock->type != EMPTY) {
-            cannotSpawn = true;
-            return;
-        }
-        UpdateBlockType(spawnBlock, type);
-
-        // I'm not sure if this makes more sense to be here or return a list of spawnedBlocks to be handled in Parent function
-        fallingTetromino.blocks[index] = spawnBlock;
-
-        index++;
-        offsets++;
-    } 
-}
-
-enum TetrominoType GenerateRandomTetrominoType() {
-    srand(time(NULL));
-    return (enum TetrominoType) rand() % 6;
-}
-
-void SpawnTetromino() {
-    enum TetrominoType type = GenerateRandomTetrominoType();
+void _m_tetromino_spawn() {
+    enum TetrominoType type = _m_tetromino_type_get_random();
 
     struct Offset offsets[BLOCKS_WITHIN_A_TETROMINO];
 
-    if (type == O_TYPE) {
+    if (type == TT_O) {
         offsets[0].xOffset = 0;
         offsets[0].yOffset = 0;
 
@@ -282,7 +145,7 @@ void SpawnTetromino() {
 
         offsets[3].xOffset = 1;
         offsets[3].yOffset = 1;
-    } else if (type == J_TYPE) {
+    } else if (type == TT_J) {
         offsets[0].xOffset = 0;
         offsets[0].yOffset = 0;
 
@@ -294,7 +157,7 @@ void SpawnTetromino() {
 
         offsets[3].xOffset = 2;
         offsets[3].yOffset = 1;
-    } else if (type == L_TYPE) {
+    } else if (type == TT_L) {
         offsets[0].xOffset = 0;
         offsets[0].yOffset = 1;
 
@@ -306,7 +169,7 @@ void SpawnTetromino() {
 
         offsets[3].xOffset = 2;
         offsets[3].yOffset = 0;
-    } else if (type == I_TYPE) {
+    } else if (type == TT_I) {
         offsets[0].xOffset = 0;
         offsets[0].yOffset = 0;
 
@@ -318,7 +181,7 @@ void SpawnTetromino() {
 
         offsets[3].xOffset = 0;
         offsets[3].yOffset = 3;
-    } else if (type == S_TYPE) {
+    } else if (type == TT_S) {
         offsets[0].xOffset = 0;
         offsets[0].yOffset = 1;
 
@@ -330,7 +193,7 @@ void SpawnTetromino() {
 
         offsets[3].xOffset = 2;
         offsets[3].yOffset = 0;
-    } else if (type == Z_TYPE) {
+    } else if (type == TT_Z) {
         offsets[0].xOffset = 0;
         offsets[0].yOffset = 0;
 
@@ -342,7 +205,7 @@ void SpawnTetromino() {
 
         offsets[3].xOffset = 2;
         offsets[3].yOffset = 1;
-    } else if (type == T_TYPE) {
+    } else if (type == TT_T) {
         offsets[0].xOffset = 1;
         offsets[0].yOffset = 0;
 
@@ -356,63 +219,169 @@ void SpawnTetromino() {
         offsets[3].yOffset = 1;
     }
 
-    SpawnBlocksAtPoints(type, offsets);
+    _m_blocks_spawn_at_offset_from_spawn_point(type, offsets);
 }
 
-void DeregisterUpdatedBlocks() {
-    _updatedBlockLength = 0;
+enum TetrominoType _m_tetromino_type_random(void) {
+    srand(time(NULL));
+    return (enum TetrominoType) rand() % 6;
 }
 
-void Update(void) {
-    DeregisterUpdatedBlocks();
-    if (shouldSpawnTetromino) {
-        moveLeft = false;
-        moveRight = false;
-        SpawnTetromino();
-        shouldSpawnTetromino = false;
+void _m_blocks_spawn_at_offset_from_spawn_point(enum TetrominoType type, struct Offset *offsets) {
+    fallingTetromino.type = type;
+    int index = 0;
+    while(index < BLOCKS_WITHIN_A_TETROMINO) {
+        struct Point spawnPoint;
+        spawnPoint.x = kSpawnX + offsets->xOffset;
+        spawnPoint.y = offsets->yOffset;
+
+        struct TetrominoBlock* spawnBlock = _m_block_at_point(spawnPoint);
+        if (spawnBlock->type != TT_EMPTY) {
+            _tetromino_can_spawn = false;
+            return;
+        }
+        _m_block_set_type(spawnBlock, type);
+
+        // I'm not sure if this makes more sense to be here or return a list of spawnedBlocks to be handled in Parent function
+        fallingTetromino.blocks[index] = spawnBlock;
+
+        index++;
+        offsets++;
+    } 
+}
+
+struct TetrominoBlock *_m_block_at_point(struct Point point) {
+    return _blocks[(point.x % FIELD_WIDTH) + (point.y * FIELD_WIDTH)];
+}
+
+void _m_block_set_type(struct TetrominoBlock *pTetrominoBlock, enum TetrominoType type) {
+    pTetrominoBlock->type = type;
+    _m_blocks_updated_register_block(pTetrominoBlock);
+}
+
+void _m_blocks_updated_register_block(struct TetrominoBlock *pTetrominoBlock) {
+    if (_blocks_updated_length < FIELD_HEIGHT * FIELD_WIDTH) {
+        _blocks_updated[_blocks_updated_length] = pTetrominoBlock;
+        _blocks_updated_length++;
+    }
+}
+
+void _m_falling_tetromino_rotate(void) {
+    if (fallingTetromino.type != TT_O) {
+        // i'm not a fan of this implementation
+        // check this out instead and re-write
+        // https://stackoverflow.com/questions/42519/how-do-you-rotate-a-two-dimensional-array?page=1&tab=scoredesc#tab-top
+
+    }
+}
+
+bool _m_falling_tetromino_can_move_right(void) {
+    bool result = true;
+    for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
+        if (!_m_block_can_move_right(*(fallingTetromino.blocks[i]))) {
+            result = false;
+            break;
+        }
+    }
+
+    return result;
+}
+
+void _m_falling_tetromino_translate(struct Offset offset) {
+    for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
+        _m_block_set_type(fallingTetromino.blocks[i], TT_EMPTY);
+        _m_blocks_updated_register_block(fallingTetromino.blocks[i]);
+    }
+
+    for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
+        struct Point updatedPoint = { .x = fallingTetromino.blocks[i]->x + offset.xOffset, .y = fallingTetromino.blocks[i]->y + offset.yOffset};
+        fallingTetromino.blocks[i] = _m_block_at_point(updatedPoint);
+
+        _m_block_set_type(fallingTetromino.blocks[i], fallingTetromino.type);
+        _m_blocks_updated_register_block(fallingTetromino.blocks[i]);
+    }
+}
+
+bool _m_point_intersects_static_block(struct Point point) {
+    bool result = false;
+
+    struct TetrominoBlock* blockAtPoint = _m_block_at_point(point);
+
+    if (blockAtPoint->type != TT_EMPTY) {
+        result = true;
+
+        for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
+            if (fallingTetromino.blocks[i] == blockAtPoint) {
+                result = false;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+bool _m_block_can_fall(struct TetrominoBlock block) {
+    struct Point newBlockPoint = { .x = block.x, .y = block.y + 1};
+    if (newBlockPoint.y >= FIELD_HEIGHT) {
+        return false;
+    } else if (_m_point_intersects_static_block(newBlockPoint)) {
+        return false;
     } else {
-        // TODO move left and right refactor naming 
-
-        if(rotate) {
-            TryRotateFallingTetromino();
-            rotate = false;
-        }
-        
-        if (moveRight && FallingTetrominoCanMoveRight()) {
-            ShiftFallingTetrominoByOffset(kShiftRightOffset);
-            moveRight = false;
-        }
-
-        if (moveLeft && FallingTetrominoCanMoveLeft()) {
-            ShiftFallingTetrominoByOffset(kShiftLeftOffset);
-            moveLeft = false;
-        }
-
-        UpdateFallingTetromino();
+        return true;
     }
 }
 
-bool CantSpawnBlock(void) {
-    return cannotSpawn;
+bool _m_falling_tetromino_can_fall(void) {
+    bool result = true;
+    for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
+        if (!_m_block_can_fall(*(fallingTetromino.blocks[i]))) {
+            result = false;
+            break;
+        }
+    }
+
+    return result;
 }
 
-void EmptyAllBlocks(void) {
-    for (int i = 0; i < FIELD_HEIGHT * FIELD_WIDTH; i++) {
-        UpdateBlockType(_blocks[i], EMPTY);
+void _m_falling_tetromino_fall(void) {
+    if(_m_falling_tetromino_can_fall()) {
+        _m_falling_tetromino_translate(kShiftDownOffset);
+    } else {
+        _should_spawn_tetromino = true;
     }
 }
 
-void AllocBlocks(void) {
-    for (int i = 0; i < FIELD_HEIGHT * FIELD_WIDTH; i++) {
-        struct TetrominoBlock* block = calloc(1, sizeof(struct TetrominoBlock));
-        block->x = i % FIELD_WIDTH;
-        block->y = i / FIELD_WIDTH;
-
-        _blocks[i] = block;
+bool _m_block_can_move_left(struct TetrominoBlock block) {
+    struct Point newBlockPoint = { .x = block.x - 1, .y = block.y };
+    if (newBlockPoint.x < 0) {
+        return false;
+    } else if (_m_point_intersects_static_block(newBlockPoint)) {
+        return false;
+    } else {
+        return true;
     }
 }
 
-void InitManager(void) {
-    AllocBlocks();
-    shouldSpawnTetromino = true;
+bool _m_falling_tetromino_can_move_left(void) {
+    bool result = true;
+    for(int i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
+        if (!_m_block_can_move_left(*(fallingTetromino.blocks[i]))) {
+            result = false;
+            break;
+        }
+    }
+
+    return result;
+}
+
+bool _m_block_can_move_right(struct TetrominoBlock block) {
+    struct Point newBlockPoint = { .x = block.x + 1, .y = block.y };
+    if (newBlockPoint.x >= FIELD_WIDTH) {
+        return false;
+    }  else if (_m_point_intersects_static_block(newBlockPoint)) {
+        return false;
+    } else {
+        return true;
+    }
 }

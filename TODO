@@ -1,3 +1,4 @@
+- Re-organize manager.c to match manager.h, add internals to .h and fix code style to match rest of code
 - Rotate (Partially Implemented/Buggy. Should try to understand Rotation Matrix better.)
 - Empty rows that are full should "break"
 - Shift rows down after row "breaks"
