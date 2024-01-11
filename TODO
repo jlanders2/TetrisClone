@@ -1,0 +1,6 @@
+- Rotate (Partially Implemented/Buggy. Should try to understand Rotation Matrix better.)
+- Empty rows that are full should "break"
+- Shift rows down after row "breaks"
+- Track and Display Score. During and After game
+- display Upcoming block
+- Introduce levels/speed up with every level
