@@ -26,22 +26,25 @@ I hope you enjoy!
 
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
+* [Raylib](https://github.com/raysan5/raylib) - check out this repo for instructions on how to install
+* Make - build automation tool
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+* Download zip of this repo or clone using:
+```
+git clone https://github.com/jlanders2/TetrisClone
+```
 
 ### Executing program
 
-* How to run the program
-* Step-by-step bullets
+* Open terminal/command prompt and navigate to where you downloaded the folder TetrisClone/
+* execute the following commands from the TetrisClone folder
 ```
-code blocks for commands
+cd src/
+make
+./tetris-clone
 ```
-
-## Help
 
 ## Authors
 
@@ -51,8 +54,7 @@ John Landers [jcolelanders@gmail.com](mailto:jcolelanders@gmail.com)
 
 ## Version History
 
-* 0.1
-    * Initial Release
+Unreleased
 
 ## License
 
