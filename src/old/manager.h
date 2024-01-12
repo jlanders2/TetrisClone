@@ -4,7 +4,6 @@
 #include <stdbool.h>
 
 #include "tetromino.h"
-// TODO - I'm not sure whether the internal functions should actually be here...
 void m_initialize(void);
 void m_update(void);
 void m_blocks_set_empty(void);

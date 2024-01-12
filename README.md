@@ -11,7 +11,11 @@ Here are some early screenshots of my progress:
 ![gameplay](screenshots/game_screenshot.png "Gameplay")
 ![gameover](screenshots/game_over_screenshot.png "Game Over")
 
-Features left to implement:
+I am currently in the progress of re-writing the entire codebase. I am a relatively new C programmer, and when I first started
+this project I hadn't nailed down a C style that I like. So I have been working on updating the overall style of the code; plus 
+I have been challenging myself to use a ANSI-C standard.
+
+There are also quite a few features left to implement:
 - Update codebase to use cohesive style (still haven't landed on exactly what I like)
 - Re-Implement rotation algorithm; my original algorithm was extremely buggy
 - Empty rows that are full should "break"
@@ -20,7 +24,7 @@ Features left to implement:
 - display upcoming block
 - introduce levels and increasing speed/score multiplier
 
-I hope you enjoy!
+I will be able to focus on those again once I finish the re-write.
 
 ## Getting Started
 

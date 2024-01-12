@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-Wall -Wextra -include raylib.h
+CFLAGS=-Wall -Wextra -std=c89 -pedantic -include raylib.h
 LIBS=-lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 tetris-clone: main.c manager.c renderer.c app.c
