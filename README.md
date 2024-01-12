@@ -31,14 +31,14 @@ I hope you enjoy!
 
 ### Installing
 
-* Download zip of this repo or clone using:
+* Download and extract zip of this repo or clone the repository using:
 ```
 git clone https://github.com/jlanders2/TetrisClone
 ```
 
 ### Executing program
 
-* Open terminal/command prompt and navigate to where you downloaded the folder TetrisClone/
+* Open terminal/command prompt and navigate to where you downloaded the repo
 * execute the following commands from the TetrisClone folder
 ```
 cd src/
