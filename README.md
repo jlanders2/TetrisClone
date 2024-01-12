@@ -65,4 +65,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 Inspiration, code snippets, etc.
 * [Tetris](https://en.wikipedia.org/wiki/Tetris)
 * [raylib](https://github.com/raysan5/raylib)
-* [2D Array Rotation Algorithm](https://stackoverflow.com/questions/42519/how-do-you-rotate-a-two-dimensional-array/8664879#8664879)
+* [2D Array Rotation Algorithm](https://stackoverflow.com/questions/42519/how-do-you-rotate-a-two-dimensional-array/8664879#8664879) - User does provide code samples, however I choose to implement my algorithm solely from the psuedocode provided in this excellent answer.
