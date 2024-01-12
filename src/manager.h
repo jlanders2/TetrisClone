@@ -12,7 +12,7 @@ bool m_tetromino_can_spawn(void); // Bad name + Doesn't follow naming
 void m_request_falling_tetromino_rotate(void);
 void m_request_falling_tetromino_move_left(void);
 void m_request_falling_tetromino_move_right(void);
-struct TetrominoBlock* *m_blocks_get_updated(int* lengthOfBlocksUpdated);
+struct TetrominoBlock **m_blocks_get_updated(int *lengthOfBlocksUpdated);
 void m_deactivate(void);
 
 #endif

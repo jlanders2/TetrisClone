@@ -8,7 +8,7 @@
 #define SCREEN_WIDTH 320
 
 void r_initialize(void);
-void r_render_blocks(struct TetrominoBlock* *blocks, int length);
+void r_render_blocks(struct TetrominoBlock **blocks, int length);
 void r_render_game_over(int score);
 
 void _r_render_block(struct TetrominoBlock blockToRender);

@@ -1,7 +1,7 @@
 #include "app.h"
 
 int main(void) {
-    a_run();
+  a_run();
 
-    return 0;
+  return 0;
 }
