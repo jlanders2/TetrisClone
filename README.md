@@ -11,7 +11,7 @@ Here are some early screenshots of my progress:
 ![gameplay](screenshots/game_screenshot.png "Gameplay")
 ![gameover](screenshots/game_over_screenshot.png "Game Over")
 
-Features left to-do:
+Features left to implement:
 - Update codebase to use cohesive style (still haven't landed on exactly what I like)
 - Re-Implement rotation algorithm; my original algorithm was extremely buggy
 - Empty rows that are full should "break"
@@ -26,22 +26,25 @@ I hope you enjoy!
 
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
+* [Raylib](https://github.com/raysan5/raylib) - check out this repo for instructions on how to install
+* Make - build automation tool
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+* Download and extract zip of this repo or clone the repository using:
+```
+git clone https://github.com/jlanders2/TetrisClone
+```
 
 ### Executing program
 
-* How to run the program
-* Step-by-step bullets
+* Open terminal/command prompt and navigate to where you downloaded the repo
+* execute the following commands from the TetrisClone folder
 ```
-code blocks for commands
+cd src/
+make
+./tetris-clone
 ```
-
-## Help
 
 ## Authors
 
@@ -51,8 +54,7 @@ John Landers [jcolelanders@gmail.com](mailto:jcolelanders@gmail.com)
 
 ## Version History
 
-* 0.1
-    * Initial Release
+Unreleased
 
 ## License
 
@@ -63,3 +65,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 Inspiration, code snippets, etc.
 * [Tetris](https://en.wikipedia.org/wiki/Tetris)
 * [raylib](https://github.com/raysan5/raylib)
+* [2D Array Rotation Algorithm](https://stackoverflow.com/questions/42519/how-do-you-rotate-a-two-dimensional-array/8664879#8664879) - User does provide code samples, however I choose to implement my algorithm solely from the psuedocode provided in this excellent answer.
