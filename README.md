@@ -11,7 +11,7 @@ Here are some early screenshots of my progress:
 ![gameplay](screenshots/game_screenshot.png "Gameplay")
 ![gameover](screenshots/game_over_screenshot.png "Game Over")
 
-Features left implement:
+Features left to implement:
 - Update codebase to use cohesive style (still haven't landed on exactly what I like)
 - Re-Implement rotation algorithm; my original algorithm was extremely buggy
 - Empty rows that are full should "break"
