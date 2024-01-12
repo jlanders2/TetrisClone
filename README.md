@@ -1,4 +1,4 @@
-# Tetris Clone
+# Tetris Clone (Incomplete)
 
 Creating a Tetris clone in C to practice C programming and learn more about Raylib (awesome library btw!).
 
