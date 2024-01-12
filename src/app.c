@@ -8,17 +8,20 @@
 
 #define TARGET_FPS 60
 
-void a_run(void) {
-  _a_initialize();
+int _a_tick_rate = 0;
+
+void a_run(int tick_rate) {
+  _a_initialize(tick_rate);
   _a_loop();
   _a_cleanup();
 }
 
-void _a_initialize(void) {
+void _a_initialize(int tick_rate) {
   _a_initialize_raylib();
   m_initialize();
   r_initialize();
   _a_gameboard_clear();
+  _a_tick_rate = tick_rate;
 }
 
 void _a_initialize_raylib(void) {
@@ -35,23 +38,22 @@ void _a_gameboard_clear(void) {
 }
 
 void _a_loop(void) {
-  int tick_rate = 0; // Guaranteed a better way to do this XD
+  int tick_rate_counter = 0;
   while (!WindowShouldClose()) {
-    while (m_tetromino_can_spawn()) {
-      if (WindowShouldClose())
-        return;
+    if (m_tetromino_can_spawn()) {
       _a_input_process();
-      if (tick_rate == 0) {
+      if (tick_rate_counter == 0) {
         m_update();
-        tick_rate = 50;
+        tick_rate_counter = _a_tick_rate;
       }
       int number_blocks_updated = 0;
       struct TetrominoBlock **blocks_updated =
           m_blocks_get_updated(&number_blocks_updated);
       r_render_blocks(blocks_updated, number_blocks_updated);
-      tick_rate--;
+      tick_rate_counter--;
+    } else {
+      r_render_game_over(0);
     }
-    r_render_game_over(0);
   }
 }
 
