@@ -2,24 +2,24 @@
 #define BLOCK_H_
 #include "point.h"
 
-/* still unsure how i want to name structs and enums */
+/* Not sure where this should belong tbh */
+#define BLOCKS_WITHIN_A_TETROMINO 4
 
-typedef enum btype_t
-{
-    bt_I,
-    bt_J,
-    bt_L,
-    bt_O,
-    bt_S,
-    bt_T,
-    bt_Z,
-    bt_Empty
+typedef enum btype_t {
+  bt_Empty,
+  bt_I,
+  bt_J,
+  bt_L,
+  bt_O,
+  bt_S,
+  bt_T,
+  bt_Z
 } btype_t;
 
-typedef struct block_t
-{
-    point_t point;
-    btype_t type;
+typedef struct block_t {
+  int id;
+  point_t point;
+  btype_t type;
 } block_t;
 
 #endif /* BLOCK_H_ */
