@@ -29,5 +29,7 @@ void M_B_On_Block_Spawn(void (*callback)(block_t **blocks));
 int M_B_Point_Intersects_Static_Block(point_t point, int id);
 int M_B_Generate_Block_Id(void);
 int M_B_Can_Spawn_Blocks(void);
+block_t *M_B_Rotate_Block_Around_Point(block_t *block_to_rotate,
+                                       point_t rotation_point);
 
 #endif /* M_BLOCK_H_ */

@@ -50,8 +50,9 @@ void TC_Game_Loop(void) {
   while (!TC_Close_Window()) {
     while (M_B_Can_Spawn_Blocks()) {
       R_Draw_Ui();
+      TC_Process_Input_Per_Frame();
       if (tick_rate == 0) {
-        TC_Process_Input();
+        TC_Process_Input_Per_Tick();
         M_T_Update_Tetromino();
         M_B_Update_Blocks();
         updated_blocks = M_B_Get_Blocks(&n_updated_blocks);

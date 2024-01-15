@@ -8,5 +8,6 @@ void M_T_Tetromino_Fall(void);
 void M_T_Register_Falling_Blocks(block_t **blocks);
 void M_T_Move_Tetromino_Left(void);
 void M_T_Move_Tetromino_Right(void);
+void M_T_Rotate_Tetromino(void);
 
 #endif /* M_TETROMINO_H_ */

@@ -2,7 +2,7 @@
 #include "m_tetromino.h"
 #include "raylib.h"
 
-void TC_Process_Input(void) {
+void TC_Process_Input_Per_Tick(void) {
   /* Was having issues with raylib input, wasn't having these
      issues before but I figured out that I can just cast to
      a char to get the result I want :)
@@ -13,5 +13,11 @@ void TC_Process_Input(void) {
     M_T_Move_Tetromino_Left();
   } else if ((char)IsKeyDown(KEY_D)) {
     M_T_Move_Tetromino_Right();
+  }
+}
+
+void TC_Process_Input_Per_Frame(void) {
+  if ((char)IsKeyPressed(KEY_SPACE)) {
+    M_T_Rotate_Tetromino();
   }
 }

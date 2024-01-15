@@ -1,7 +1,6 @@
 #include "m_block.h"
 
 #include <limits.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -367,3 +366,35 @@ int M_B_Generate_Block_Id(void) {
 }
 
 int M_B_Can_Spawn_Blocks(void) { return _can_spawn_tetromino_flag; }
+
+/* TODO: make this update around point */
+block_t *M_B_Rotate_Block_Around_Point(block_t *block_to_rotate,
+                                       point_t rotation_point) {
+  point_offset_t offset, transposed_offset;
+  block_t *updated_block,
+      *origin_block = M_B_Get_Block_At_Point(rotation_point);
+
+  offset.x_offset = block_to_rotate->point.x - rotation_point.x;
+  offset.y_offset = block_to_rotate->point.y - rotation_point.y;
+
+  if (offset.x_offset > 0 || offset.x_offset < 0) {
+    transposed_offset.x_offset = offset.y_offset;
+    transposed_offset.y_offset = offset.x_offset * -1;
+  } else {
+    transposed_offset.x_offset = offset.y_offset;
+    transposed_offset.y_offset = offset.x_offset;
+  }
+
+  printf("Offset: %d,%d\n", transposed_offset.x_offset,
+         transposed_offset.y_offset);
+
+  /* This code is duplicated many places */
+  updated_block = M_B_Get_Block_At_Offset(origin_block, transposed_offset);
+  updated_block->id = block_to_rotate->id;
+  M_B_Set_Block_Type(updated_block, block_to_rotate->type);
+  block_to_rotate->id = -1;
+  M_B_Set_Block_Type(block_to_rotate, bt_Empty);
+  printf("\nAddr %p != %p\n", updated_block, block_to_rotate);
+
+  return updated_block;
+}
