@@ -1,7 +1,7 @@
 #ifndef TC_SETTINGS_H_
 #define TC_SETTINGS_H_
 
-/* these settings could probably be more robust, probably doesn't matter until i
+/* these settings could probably be more robust, probably doesn't matter unless i
  * need more*/
 /* Maybe have a load defaults, then optionally update? */
 

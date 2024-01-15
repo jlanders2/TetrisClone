@@ -1,6 +1,7 @@
 #include "m_block.h"
 
 #include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -364,3 +365,5 @@ int M_B_Generate_Block_Id(void) {
   srand(time(NULL));
   return rand();
 }
+
+int M_B_Can_Spawn_Blocks(void) { return _can_spawn_tetromino_flag; }

@@ -1,5 +1,4 @@
 #include "tc_input.h"
-
 #include "m_tetromino.h"
 #include "raylib.h"
 
@@ -8,13 +7,8 @@ void TC_Process_Input(void) {
      issues before but I figured out that I can just cast to
      a char to get the result I want :)
 
-     THIS IS NOT HOW RAYLIB IS INTENDED TO BE USED
-
-     should look into what's going on
+     should look into what's going on though to understand better
   */
-  if ((char)IsKeyPressed(KEY_SPACE)) {
-    /* Implement after rotation */
-  }
   if ((char)IsKeyDown(KEY_A)) {
     M_T_Move_Tetromino_Left();
   } else if ((char)IsKeyDown(KEY_D)) {

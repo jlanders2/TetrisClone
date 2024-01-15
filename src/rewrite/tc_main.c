@@ -48,19 +48,21 @@ void TC_Game_Loop(void) {
   int tick_rate = 0, n_updated_blocks = 0;
   block_t **updated_blocks = NULL;
   while (!TC_Close_Window()) {
-    R_Draw_Ui();
-    if (tick_rate == 0) {
-      TC_Process_Input();
-      M_T_Update_Tetromino();
-      M_B_Update_Blocks();
-      updated_blocks = M_B_Get_Blocks(&n_updated_blocks);
-      R_Draw_Blocks(updated_blocks, n_updated_blocks);
-      tick_rate = game_speed_setting;
-    } else {
-      tick_rate--;
+    while (M_B_Can_Spawn_Blocks()) {
+      R_Draw_Ui();
+      if (tick_rate == 0) {
+        TC_Process_Input();
+        M_T_Update_Tetromino();
+        M_B_Update_Blocks();
+        updated_blocks = M_B_Get_Blocks(&n_updated_blocks);
+        R_Draw_Blocks(updated_blocks, n_updated_blocks);
+        tick_rate = game_speed_setting;
+      } else {
+        tick_rate--;
+      }
     }
+    R_Draw_Game_Over(0);
   }
-  R_Draw_Game_Over(0);
 }
 
 void TC_Stop(void) {
