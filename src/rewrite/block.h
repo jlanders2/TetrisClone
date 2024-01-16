@@ -2,7 +2,7 @@
 #define BLOCK_H_
 #include "point.h"
 
-/* Not sure where this should belong tbh */
+/* Not sure where this belongs tbh */
 #define BLOCKS_WITHIN_A_TETROMINO 4
 
 typedef enum btype_t {

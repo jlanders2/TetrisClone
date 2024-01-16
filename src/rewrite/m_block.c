@@ -1,6 +1,7 @@
 #include "m_block.h"
 
 #include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -23,13 +24,14 @@ void (*on_block_spawn)(block_t *blocks[BLOCKS_WITHIN_A_TETROMINO]);
 
 void M_B_Create_Blocks(void) {
   int i;
+  block_t *block = NULL;
+
   for (i = 0; i < BLOCK_ARRAY_LENGTH; i++) {
-    block_t *block = malloc(sizeof(block_t));
+    block = malloc(sizeof(block_t));
     block->id = -1;
     block->point.x = i % BLOCK_ARRAY_COLUMNS;
     block->point.y = i / BLOCK_ARRAY_COLUMNS;
     block->type = bt_Empty;
-
     _blocks[i] = block;
   }
 }
@@ -55,6 +57,7 @@ block_t **M_B_Get_Updated_Blocks(int *length) {
 
 void M_B_Destroy_Blocks(void) {
   int i;
+
   for (i = 0; i < BLOCK_ARRAY_LENGTH; i++) {
     free(_blocks[i]);
   }
@@ -72,7 +75,6 @@ void M_B_Spawn_Blocks(void) {
   if (_next_block_type == bt_Empty) {
     M_B_Set_Next_Block_Type();
   }
-
   switch (_next_block_type) {
   case bt_I:
     offsets[0].x_offset = 0;
@@ -183,27 +185,24 @@ btype_t M_B_Get_Random_Block_Type(void) {
 }
 
 int M_B_Try_Spawn_Blocks_With_Offset(point_offset_t *offsets) {
-  int i = 0, kinda_unique_id = M_B_Generate_Block_Id();
+  int i = 0, unique_id = M_B_Generate_Block_Id();
   point_t spawn_point;
   block_t *spawn_block;
+
   while (i < BLOCKS_WITHIN_A_TETROMINO) {
     spawn_point.x = _spawn_x + offsets->x_offset;
     spawn_point.y = offsets->y_offset;
-
     spawn_block = M_B_Get_Block_At_Point(spawn_point);
     if (spawn_block->type != bt_Empty) {
       _can_spawn_tetromino_flag = 0;
       return 0;
     }
-    spawn_block->id = kinda_unique_id;
+    spawn_block->id = unique_id;
     M_B_Set_Block_Type(spawn_block, _next_block_type);
-
     _recently_spawned_blocks[i] = spawn_block;
-
     i++;
     offsets++;
   }
-
   return 1;
 }
 
@@ -225,19 +224,20 @@ void M_B_Register_Updated_block(block_t *block) {
 }
 
 int M_B_Can_Move_Blocks_Left(block_t **blocks) {
-  int i = 0, result = 1;
-  for (; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
+  int i, result = 1;
+
+  for (i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
     if (!M_B_Can_Move_Block_Left(*(blocks[i]))) {
       result = 0;
       break;
     }
   }
-
   return result;
 }
 
 int M_B_Can_Move_Block_Left(block_t block) {
   point_t left_adj_block_point;
+
   left_adj_block_point.x = block.point.x - 1;
   left_adj_block_point.y = block.point.y;
   if (left_adj_block_point.x < 0) {
@@ -253,28 +253,29 @@ int M_B_Can_Move_Block_Left(block_t block) {
 block_t *M_B_Move_Block_Left(block_t *block) {
   /* Kinda dupe from right and down, might consolidate */
   block_t *updated_block = M_B_Get_Block_At_Offset(block, _shift_left_offset);
+
   updated_block->id = block->id;
   M_B_Set_Block_Type(updated_block, block->type);
   block->id = -1;
   M_B_Set_Block_Type(block, bt_Empty);
-
   return updated_block;
 }
 
 int M_B_Can_Move_Blocks_Right(block_t **blocks) {
-  int i = 0, result = 1;
-  for (; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
+  int i, result = 1;
+
+  for (i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
     if (!M_B_Can_Move_Block_Right(*(blocks[i]))) {
       result = 0;
       break;
     }
   }
-
   return result;
 }
 
 int M_B_Can_Move_Block_Right(block_t block) {
   point_t right_adj_block_point;
+
   right_adj_block_point.x = block.point.x + 1;
   right_adj_block_point.y = block.point.y;
   if (right_adj_block_point.x >= BLOCK_ARRAY_COLUMNS) {
@@ -290,32 +291,32 @@ int M_B_Can_Move_Block_Right(block_t block) {
 
 block_t *M_B_Move_Block_Right(block_t *block) {
   block_t *updated_block = M_B_Get_Block_At_Offset(block, _shift_right_offset);
+
   updated_block->id = block->id;
   M_B_Set_Block_Type(updated_block, block->type);
   block->id = -1;
   M_B_Set_Block_Type(block, bt_Empty);
-
   return updated_block;
 }
 
 int M_B_Can_Move_Blocks_Down(block_t **blocks) {
-  int i = 0, result = 1;
-  for (; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
+  int i, result = 1;
+
+  for (i = 0; i < BLOCKS_WITHIN_A_TETROMINO; i++) {
     if (!M_B_Can_Move_Block_Down(*(blocks[i]))) {
       result = 0;
       break;
     }
   }
-
   if (!result) {
     _spawn_tetromino_flag = 1;
   }
-
   return result;
 }
 
 int M_B_Can_Move_Block_Down(block_t block) {
   point_t bottom_adj_block_point;
+
   bottom_adj_block_point.x = block.point.x;
   bottom_adj_block_point.y = block.point.y + 1;
   if (bottom_adj_block_point.y >= BLOCK_ARRAY_ROWS) {
@@ -330,25 +331,24 @@ int M_B_Can_Move_Block_Down(block_t block) {
 
 block_t *M_B_Move_Block_Down(block_t *block) {
   block_t *updated_block = M_B_Get_Block_At_Offset(block, _shift_down_offset);
+
   updated_block->id = block->id;
   M_B_Set_Block_Type(updated_block, block->type);
   block->id = -1;
   M_B_Set_Block_Type(block, bt_Empty);
-
   return updated_block;
 }
 
 block_t *M_B_Get_Block_At_Offset(block_t *block, point_offset_t offset) {
   point_t updated_point;
+
   updated_point.x = block->point.x + offset.x_offset;
   updated_point.y = block->point.y + offset.y_offset;
-
   return M_B_Get_Block_At_Point(updated_point);
 }
 
 int M_B_Point_Intersects_Static_Block(point_t point, int id) {
   int result = 0;
-
   block_t *block_at_point = M_B_Get_Block_At_Point(point);
 
   if (block_at_point->type != bt_Empty && block_at_point->id != id) {
@@ -367,16 +367,17 @@ int M_B_Generate_Block_Id(void) {
 
 int M_B_Can_Spawn_Blocks(void) { return _can_spawn_tetromino_flag; }
 
-/* TODO: make this update around point */
+/* TODO: There is an issue with S and T Type Rotations */
 block_t *M_B_Rotate_Block_Around_Point(block_t *block_to_rotate,
                                        point_t rotation_point) {
   point_offset_t offset, transposed_offset;
   block_t *updated_block,
       *origin_block = M_B_Get_Block_At_Point(rotation_point);
+  btype_t current_block_type = block_to_rotate->type;
+  int current_block_id = block_to_rotate->id;
 
   offset.x_offset = block_to_rotate->point.x - rotation_point.x;
   offset.y_offset = block_to_rotate->point.y - rotation_point.y;
-
   if (offset.x_offset > 0 || offset.x_offset < 0) {
     transposed_offset.x_offset = offset.y_offset;
     transposed_offset.y_offset = offset.x_offset * -1;
@@ -384,17 +385,10 @@ block_t *M_B_Rotate_Block_Around_Point(block_t *block_to_rotate,
     transposed_offset.x_offset = offset.y_offset;
     transposed_offset.y_offset = offset.x_offset;
   }
-
-  printf("Offset: %d,%d\n", transposed_offset.x_offset,
-         transposed_offset.y_offset);
-
-  /* This code is duplicated many places */
   updated_block = M_B_Get_Block_At_Offset(origin_block, transposed_offset);
-  updated_block->id = block_to_rotate->id;
-  M_B_Set_Block_Type(updated_block, block_to_rotate->type);
   block_to_rotate->id = -1;
   M_B_Set_Block_Type(block_to_rotate, bt_Empty);
-  printf("\nAddr %p != %p\n", updated_block, block_to_rotate);
-
+  updated_block->id = current_block_id;
+  M_B_Set_Block_Type(updated_block, current_block_type);
   return updated_block;
 }
