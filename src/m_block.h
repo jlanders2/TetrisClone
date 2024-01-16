@@ -10,6 +10,7 @@ void M_B_Destroy_Blocks(void);
 void M_B_Reset_Blocks_Updated(void);
 void M_B_Spawn_Blocks(void);
 void M_B_Set_Next_Block_Type(void);
+btype_t M_B_Get_Next_Block_Type(void);
 btype_t M_B_Get_Random_Block_Type(void);
 int M_B_Try_Spawn_Blocks_With_Offset(point_offset_t *offsets);
 block_t *M_B_Get_Block_At_Point(point_t point);

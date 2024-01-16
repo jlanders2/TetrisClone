@@ -40,6 +40,7 @@ void R_Draw_Block(block_t block) {
               block.point.y * TEXTURE_SIZE, SC_White);
 }
 
+/* TODO: Rename to match style */
 Texture2D *__R_Get_Texture_By_Block_Type(btype_t block_type) {
   switch (block_type) {
   case bt_O:

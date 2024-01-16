@@ -179,6 +179,8 @@ void M_B_Set_Next_Block_Type(void) {
   _next_block_type = M_B_Get_Random_Block_Type();
 }
 
+btype_t M_B_Get_Next_Block_Type(void) { return _next_block_type; }
+
 btype_t M_B_Get_Random_Block_Type(void) {
   srand(time(NULL));
   return (btype_t)(rand() % 7) + 1;

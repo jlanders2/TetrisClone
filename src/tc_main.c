@@ -40,6 +40,7 @@ void TC_Initialize(void) {
   M_B_Create_Blocks();
   M_B_On_Block_Spawn(&M_T_Register_Falling_Blocks);
   R_Load_Textures();
+  R_UI_Load_Textures();
   blocks_created = M_B_Get_Blocks(&n_blocks_created);
   R_Draw_Blocks(blocks_created, n_blocks_created);
 }
@@ -48,8 +49,8 @@ void TC_Game_Loop(void) {
   int tick_rate = 0, n_updated_blocks = 0;
   block_t **updated_blocks = NULL;
   while (!TC_Close_Window()) {
+    R_UI_Draw_Ui();
     if (M_B_Can_Spawn_Blocks()) {
-      R_Draw_Ui();
       TC_Process_Input_Per_Frame();
       if (tick_rate == 0) {
         TC_Process_Input_Per_Tick();
@@ -62,7 +63,7 @@ void TC_Game_Loop(void) {
         tick_rate--;
       }
     } else {
-      R_Draw_Game_Over(0);
+      R_UI_Draw_Game_Over(0);
     }
   }
 }
