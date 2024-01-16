@@ -2,6 +2,8 @@
 
 Creating a Tetris clone in C to practice C programming and learn more about Raylib (awesome library btw!).
 
+For this project I am attempting to limit myself to ANSI C standards.
+
 ## Description
 
 This game is a clone of the popular game Tetris. This clone features what you would expect from a simplistic version of Tetris, namely: falling blocks, which upon completion of a row disappear, score keeping and levels with incremental difficulty.
@@ -11,20 +13,15 @@ Here are some early screenshots of my progress:
 ![gameplay](screenshots/game_screenshot.png "Gameplay")
 ![gameover](screenshots/game_over_screenshot.png "Game Over")
 
-I am currently in the progress of re-writing the entire codebase. I am a relatively new C programmer, and when I first started
-this project I hadn't nailed down a C style that I like. So I have been working on updating the overall style of the code; plus 
-I have been challenging myself to use a ANSI-C standard.
-
 There are also quite a few features left to implement:
-- Update codebase to use cohesive style (still haven't landed on exactly what I like)
-- Re-Implement rotation algorithm; my original algorithm was extremely buggy
+- Ongoing code style enhancements (relatively new to C)
+- ~~Re-Implement rotation algorithm; my original algorithm was extremely buggy~~
+  - Fix buggy S and T tetromino rotation
 - Empty rows that are full should "break"
 - Broken rows should cause other rows to shift down without losing ordering
 - scoring system
-- display upcoming block
+- ~~display upcoming block~~
 - introduce levels and increasing speed/score multiplier
-
-I will be able to focus on those again once I finish the re-write.
 
 ## Getting Started
 
