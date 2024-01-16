@@ -48,7 +48,7 @@ void TC_Game_Loop(void) {
   int tick_rate = 0, n_updated_blocks = 0;
   block_t **updated_blocks = NULL;
   while (!TC_Close_Window()) {
-    while (M_B_Can_Spawn_Blocks()) {
+    if (M_B_Can_Spawn_Blocks()) {
       R_Draw_Ui();
       TC_Process_Input_Per_Frame();
       if (tick_rate == 0) {
@@ -61,8 +61,9 @@ void TC_Game_Loop(void) {
       } else {
         tick_rate--;
       }
+    } else {
+      R_Draw_Game_Over(0);
     }
-    R_Draw_Game_Over(0);
   }
 }
 

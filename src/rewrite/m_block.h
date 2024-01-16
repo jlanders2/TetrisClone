@@ -15,12 +15,15 @@ int M_B_Try_Spawn_Blocks_With_Offset(point_offset_t *offsets);
 block_t *M_B_Get_Block_At_Point(point_t point);
 void M_B_Set_Block_Type(block_t *block, btype_t type);
 void M_B_Register_Updated_block(block_t *block);
-int M_B_Can_Move_Blocks_Left(block_t **blocks); // I probably don't need **
+/* TODO: I don't need ** for these kind of functions */
+int M_B_Can_Move_Blocks_Left(block_t **blocks);
 int M_B_Can_Move_Block_Left(block_t block);
 block_t *M_B_Move_Block_Left(block_t *block);
+/* TODO: I don't need ** for these kind of functions */
 int M_B_Can_Move_Blocks_Right(block_t **blocks);
 int M_B_Can_Move_Block_Right(block_t block);
 block_t *M_B_Move_Block_Right(block_t *block);
+/* TODO: I don't need ** for these kind of functions */
 int M_B_Can_Move_Blocks_Down(block_t **blocks);
 int M_B_Can_Move_Block_Down(block_t block);
 block_t *M_B_Move_Block_Down(block_t *block);
