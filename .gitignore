@@ -1,3 +1,4 @@
 .vscode/
 tetris-clone
 *.o
+.ccls-cache/
