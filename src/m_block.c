@@ -2,7 +2,6 @@
 #include "block.h"
 
 #include <limits.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -472,7 +471,6 @@ int M_B_Get_Full_Rows(int **full_indices, int *length) {
       }
     }
   }
-  printf("Full row count = %d\n", *length);
 
   return *length;
 }
