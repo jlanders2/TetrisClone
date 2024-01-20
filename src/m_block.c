@@ -1,4 +1,5 @@
 #include "m_block.h"
+#include "block.h"
 
 #include <limits.h>
 #include <stdio.h>
@@ -8,6 +9,9 @@
 #define BLOCK_ARRAY_COLUMNS 10
 #define BLOCK_ARRAY_ROWS 20
 #define BLOCK_ARRAY_LENGTH 200
+#define MAX_FULL_ROWS 4
+
+#define DEBUG
 
 block_t *_blocks[BLOCK_ARRAY_LENGTH];
 block_t *_updated_blocks[BLOCK_ARRAY_LENGTH];
@@ -21,6 +25,14 @@ const point_offset_t _shift_down_offset = {0, 1};
 const point_offset_t _shift_left_offset = {-1, 0};
 const point_offset_t _shift_right_offset = {1, 0};
 void (*on_block_spawn)(block_t *blocks[BLOCKS_WITHIN_A_TETROMINO]);
+int _top_row = 0;
+
+/* TODO: put internal function declarations here */
+void M_B_Get_Top_Row(void);
+int M_B_Get_Full_Rows(int **indices, int *length);
+void M_B_Drop_Rows(int *indices, int indices_length);
+void M_B_Shift_Rows_Down(int shift_to_index, int row_count);
+void M_B_Shift_Row_Down(int index);
 
 void M_B_Create_Blocks(void) {
   int i;
@@ -37,11 +49,24 @@ void M_B_Create_Blocks(void) {
 }
 
 void M_B_Update_Blocks(void) {
+  int full_indices_length = 0;
+  int *full_indices = NULL;
   M_B_Reset_Blocks_Updated();
+  M_B_Get_Top_Row();
+  if (_spawn_tetromino_flag &&
+      _next_block_type !=
+          bt_Empty && /* Probably better way to flag this, tired*/
+      (M_B_Get_Full_Rows(&full_indices, &full_indices_length)) > 0) {
+    /* update score based on the number of full rows */
+    M_B_Drop_Rows(full_indices, full_indices_length);
+  }
   if (_spawn_tetromino_flag) {
     M_B_Spawn_Blocks();
     M_B_Set_Next_Block_Type();
     _spawn_tetromino_flag = 0;
+  }
+  if (full_indices != NULL) {
+    free(full_indices);
   }
 }
 
@@ -176,7 +201,7 @@ void M_B_Spawn_Blocks(void) {
 }
 
 void M_B_Set_Next_Block_Type(void) {
-  _next_block_type = M_B_Get_Random_Block_Type();
+  _next_block_type = bt_I; // M_B_Get_Random_Block_Type();
 }
 
 btype_t M_B_Get_Next_Block_Type(void) { return _next_block_type; }
@@ -393,4 +418,102 @@ block_t *M_B_Rotate_Block_Around_Point(block_t *block_to_rotate,
   updated_block->id = current_block_id;
   M_B_Set_Block_Type(updated_block, current_block_type);
   return updated_block;
+}
+
+void M_B_Get_Top_Row(void) {
+  int i, j, counter;
+  point_t point;
+  block_t *block;
+  for (i = BLOCK_ARRAY_ROWS - 1; i >= 0; i--) {
+    counter = 0;
+    for (j = 0; j < BLOCK_ARRAY_COLUMNS; j++) {
+      point.x = j;
+      point.y = i;
+      block = M_B_Get_Block_At_Point(point);
+      if (block->type == bt_Empty)
+        counter++;
+    }
+    if (counter == BLOCK_ARRAY_COLUMNS) {
+      _top_row = i;
+      break;
+    }
+  }
+}
+
+/* This function is WILD LOL */
+int M_B_Get_Full_Rows(int **full_indices, int *length) {
+  int i, j, k, counter = 0;
+  int *temp;
+  point_t point;
+  block_t *block;
+  for (i = BLOCK_ARRAY_ROWS; i >= _top_row; i--) {
+    counter = 0;
+    for (j = 0; j < BLOCK_ARRAY_COLUMNS; j++) {
+      point.x = j;
+      point.y = i;
+      block = M_B_Get_Block_At_Point(point);
+      if (block->type != bt_Empty)
+        counter++;
+    }
+    if (counter == BLOCK_ARRAY_COLUMNS) {
+      (*length)++;
+      if (*full_indices == NULL) {
+        *full_indices = malloc(sizeof(int));
+        (*full_indices)[0] = i;
+      } else {
+        temp = malloc(*length * sizeof(int));
+        for (k = 0; k < *length; k++) {
+          if (k <= *length - 2) {
+            temp[k] = (*full_indices)[k];
+          } else {
+            temp[k] = i;
+          }
+        }
+        free(*full_indices);
+        *full_indices = temp;
+      }
+    }
+  }
+  printf("Full row count = %d\n", *length);
+
+  return *length;
+}
+
+int sort_desc(const void *a, const void *b) {
+  int arg1 = *(const int *)a;
+  int arg2 = *(const int *)b;
+  if (arg1 > arg2)
+    return -1;
+  if (arg1 < arg2)
+    return 1;
+  return 0;
+}
+
+void M_B_Drop_Rows(int *indices, int indices_length) {
+  qsort(indices, indices_length, sizeof(int), sort_desc);
+
+  M_B_Shift_Rows_Down(indices[0], indices_length);
+}
+
+void M_B_Shift_Rows_Down(int shift_to_index, int row_count) {
+  int i, j;
+
+  for (i = 0; i < row_count; i++) {
+    for (j = shift_to_index - 1; j >= _top_row; j--) {
+      M_B_Shift_Row_Down(j);
+    }
+    _top_row++;
+  }
+}
+
+void M_B_Shift_Row_Down(int index) {
+  int i;
+  block_t *block;
+  point_t point;
+  for (i = 0; i < BLOCK_ARRAY_COLUMNS; i++) {
+    point.x = i;
+    point.y = index;
+    block = M_B_Get_Block_At_Point(point);
+    M_B_Move_Block_Down(block);
+  }
 }

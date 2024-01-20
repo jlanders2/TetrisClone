@@ -14,11 +14,12 @@ Here are some early screenshots of my progress:
 ![gameover](screenshots/game_over_screenshot.png "Game Over")
 
 There are also quite a few features left to implement:
+
 - Ongoing code style enhancements (relatively new to C)
 - ~~Re-Implement rotation algorithm; my original algorithm was extremely buggy~~
   - Fix buggy S and T tetromino rotation
-- Empty rows that are full should "break"
-- Broken rows should cause other rows to shift down without losing ordering
+- ~~Empty rows that are full should "break"~~
+- ~~Broken rows should cause other rows to shift down without losing ordering~~
 - scoring system
 - ~~display upcoming block~~
 - introduce levels and increasing speed/score multiplier
@@ -27,20 +28,22 @@ There are also quite a few features left to implement:
 
 ### Dependencies
 
-* [Raylib](https://github.com/raysan5/raylib) - check out this repo for instructions on how to install
-* Make - build automation tool
+- [Raylib](https://github.com/raysan5/raylib) - check out this repo for instructions on how to install
+- Make - build automation tool
 
 ### Installing
 
-* Download and extract zip of this repo or clone the repository using:
+- Download and extract zip of this repo or clone the repository using:
+
 ```
 git clone https://github.com/jlanders2/TetrisClone
 ```
 
 ### Executing program
 
-* Open terminal/command prompt and navigate to where you downloaded the repo
-* execute the following commands from the TetrisClone folder
+- Open terminal/command prompt and navigate to where you downloaded the repo
+- execute the following commands from the TetrisClone folder
+
 ```
 cd src/
 make
@@ -64,5 +67,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Acknowledgments
 
 Inspiration, code snippets, etc.
-* [Tetris](https://en.wikipedia.org/wiki/Tetris)
-* [raylib](https://github.com/raysan5/raylib)
+
+- [Tetris](https://en.wikipedia.org/wiki/Tetris)
+- [raylib](https://github.com/raysan5/raylib)

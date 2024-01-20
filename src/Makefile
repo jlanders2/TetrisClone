@@ -1,5 +1,6 @@
 CC=clang
-CFLAGS=-Wall -Wextra -ansi -pedantic -include raylib.h
+CFLAGS=-Wall -Wextra -ansi -pedantic -include raylib.h -g -O0
+
 LIBS=-lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 default: tetris-clone
