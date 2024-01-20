@@ -115,7 +115,7 @@ void M_B_Spawn_Blocks(void) {
     offsets[3].y_offset = 3;
     break;
   case bt_J:
-    offsets[0].x_offset = 2;
+    offsets[0].x_offset = 0;
     offsets[0].y_offset = 0;
 
     offsets[1].x_offset = 0;
@@ -128,7 +128,7 @@ void M_B_Spawn_Blocks(void) {
     offsets[3].y_offset = 1;
     break;
   case bt_L:
-    offsets[0].x_offset = 0;
+    offsets[0].x_offset = 2;
     offsets[0].y_offset = 0;
 
     offsets[1].x_offset = 0;
@@ -200,9 +200,7 @@ void M_B_Spawn_Blocks(void) {
   }
 }
 
-void M_B_Set_Next_Block_Type(void) {
-  _next_block_type = bt_I; // M_B_Get_Random_Block_Type();
-}
+void M_B_Set_Next_Block_Type(void) { _next_block_type = bt_I; }
 
 btype_t M_B_Get_Next_Block_Type(void) { return _next_block_type; }
 
