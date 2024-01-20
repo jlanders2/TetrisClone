@@ -199,7 +199,9 @@ void M_B_Spawn_Blocks(void) {
   }
 }
 
-void M_B_Set_Next_Block_Type(void) { _next_block_type = bt_I; }
+void M_B_Set_Next_Block_Type(void) {
+  _next_block_type = M_B_Get_Random_Block_Type();
+}
 
 btype_t M_B_Get_Next_Block_Type(void) { return _next_block_type; }
 
@@ -391,7 +393,11 @@ int M_B_Generate_Block_Id(void) {
 
 int M_B_Can_Spawn_Blocks(void) { return _can_spawn_tetromino_flag; }
 
-/* TODO: There is an issue with S and T Type Rotations */
+/* TODO: There is an issue with S and T Type Rotations
+  I'm thinking about creating a function called Try_Rotate_Blocks_Around_Point
+  Pre-calculate the positions, if any collide with the edges or a block
+  with anothe ID everything fails.
+*/
 block_t *M_B_Rotate_Block_Around_Point(block_t *block_to_rotate,
                                        point_t rotation_point) {
   point_offset_t offset, transposed_offset;
